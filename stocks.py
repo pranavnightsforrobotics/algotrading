@@ -14,7 +14,13 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro()
     
     # Add a strategy
-    cerebro.addstrategy(Fall3Times)
+    #cerebro.addstrategy(SimpleMovingAverage)
+
+    # Optomize a strategy with ceartin range for the indicators
+    strats = cerebro.optstrategy(
+        SimpleMovingAverage,
+        maperiod = range(5, 50)
+    )
 
     #Add data of Microsoft to Cerebro
     data = bt.feeds.YahooFinanceCSVData(dataname='MSFT.csv', 
@@ -27,11 +33,16 @@ if __name__ == '__main__':
     # Set starting cash
     cerebro.broker.setcash(100000.0)
 
+    # Adjust weight of each trade
+    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+
+    # Set commision
+    cerebro.broker.setcommission(commission=0.000)
 
     # Run Cerebro Engine
     start_portfolio_value = cerebro.broker.getvalue()
 
-    cerebro.run()
+    cerebro.run(maxcpus = 1)
 
     end_portfolio_value = cerebro.broker.getvalue()
     pnl = end_portfolio_value - start_portfolio_value
@@ -39,4 +50,4 @@ if __name__ == '__main__':
     print(f'Final Portfolio Value: {end_portfolio_value:2f}')
     print(f'PnL: {pnl:.2f}')
 
-    cerebro.plot()
+    #cerebro.plot()
