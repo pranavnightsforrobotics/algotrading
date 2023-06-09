@@ -223,6 +223,241 @@ class SimpleMovingAverage(bt.Strategy):
         self.log('(MA Period: %2d) Ending Value: %.2f' % 
                  (self.params.maperiod, self.broker.getvalue()), doprint = True)
 
+class AccelerationDecelerationOscillator(bt.Strategy):
+    # Customazaiable paramteres to easy adjusting code
+    params = (
+        ('startAction', 0),
+    )
+
+    # Prints entered data for logging purposes
+    def log(self, printTxt, date=None, doprint=False):
+        ''' Logging function for this strategy'''
+        if doprint:
+            date = date or self.datas[0].datetime.date(0)
+            print('%s, %s' % (date.isoformat(), printTxt))
+
+    # Initialize all variables that will be used thorughout the strategy
+    def __init__(self):
+        # Keep a reference to the "close" line in the data[0] dataseries
+        self.dataclose = self.datas[0].close
+        self.order = None
+
+        # Add a AcclerationDecelerationOscillator Indicator
+        self.ADO = bt.indicators.AccelerationDecelerationOscillator()
+
+    def next(self):
+        self.log('Result, %.2f' % self.ADO[0])
+
+        # If there are no stocks, and current stock is falling buy, if there are stocks and curent stock is rising sell
+        if not self.position:
+            if(self.ADO[0] > -(self.params.startAction)):
+                self.log('BUY CREATE, %.2f' % self.dataclose[0])
+                self.order = self.buy()
+        else:
+            if(self.ADO[0] < (self.params.startAction)):
+                self.log('SELL CREATE, %.2f' % self.dataclose[0])
+                self.order = self.sell()
+
+    def stop(self):
+        self.log('(Ratio to Act: %.2f) Ending Value: %.2f' % 
+                 (self.params.startAction, self.broker.getvalue()), doprint = True)
+
+class AverageDirectionalMovementIndex(bt.Strategy):
+    # Customazaiable paramteres to easy adjusting code
+    params = (
+        ('tradeStarter', 20),
+    )
+
+    # Prints entered data for logging purposes
+    def log(self, printTxt, date=None, doprint=False):
+        ''' Logging function for this strategy'''
+        if doprint:
+            date = date or self.datas[0].datetime.date(0)
+            print('%s, %s' % (date.isoformat(), printTxt))
+
+    # Initialize all variables that will be used thorughout the strategy
+    def __init__(self):
+        # Keep a reference to the "close" line in the data[0] dataseries
+        self.dataclose = self.datas[0].close
+
+        self.order = None
+
+        # Add some Indicators
+        self.ADM = bt.indicators.AverageDirectionalMovementIndex()
+        self.WMA = bt.indicators.WeightedMovingAverage()
+        self.SMA = bt.indicators.MovingAverageSimple()
+
+    def next(self):
+        self.log('Result, %.2f' % self.ADM[0])
+
+        # If not in market, behind ideal strength, and less than average, otherwise sell
+        if not self.position:
+            if(self.WMA > self.SMA and self.ADM > self.params.tradeStarter):
+                self.order = self.buy()
+        else:
+            if(self.WMA < self.SMA):
+                self.order = self.sell()
+    
+    def stop(self):
+        self.log('(Trade Starting Point: %.2f) Ending Value: %.2f' % 
+                 (self.params.tradeStarter, self.broker.getvalue()), doprint = True)
+        
+class AverageTrueRange(bt.Strategy):
+    # Customazaiable paramteres to easy adjusting code
+    params = (
+        ('AccVolit', 0),
+    )
+
+    # Prints entered data for logging purposes
+    def log(self, printTxt, date=None, doprint=False):
+        ''' Logging function for this strategy'''
+        if doprint:
+            date = date or self.datas[0].datetime.date(0)
+            print('%s, %s' % (date.isoformat(), printTxt))
+
+    # Initialize all variables that will be used thorughout the strategy
+    def __init__(self):
+        # Keep a reference to the "close" line in the data[0] dataseries
+        self.dataclose = self.datas[0].close
+        self.order = None
+
+        # Add some Indicators
+        self.ATR = bt.indicators.AverageTrueRange()
+        self.SMA = bt.indicators.MovingAverageSimple()
+        self.EMA = bt.indicators.TripleExponentialMovingAverage()
+
+    def next(self):
+        self.log('Result, %.2f' % self.ATR[0])
+
+        # Low volitality, and current rise then buy, otherwise sell
+        if not self.position:
+            if( self.ATR < self.params.AccVolit and self.EMA > self.SMA):
+                self.order = self.buy()
+        else:
+            if( self.ATR > self.params.AccVolit or self.EMA < self.SMA):
+                self.order = self.sell()
+
+    def stop(self):
+        self.log('(Ratio to Act: %.2f) Ending Value: %.2f' % 
+                 (self.params.AccVolit, self.broker.getvalue()), doprint = True)
+        
+class BollingerBandsPct(bt.Strategy):
+    # Customazaiable paramteres to easy adjusting code
+    params = (
+        ('ActionStart', 0),
+    )
+
+    # Prints entered data for logging purposes
+    def log(self, printTxt, date=None, doprint=False):
+        ''' Logging function for this strategy'''
+        if doprint:
+            date = date or self.datas[0].datetime.date(0)
+            print('%s, %s' % (date.isoformat(), printTxt))
+
+    # Initialize all variables that will be used thorughout the strategy
+    def __init__(self):
+        # Keep a reference to the "close" line in the data[0] dataseries
+        self.dataclose = self.datas[0].close
+        self.order = None
+
+        # Add a BollingerBands Indicator
+        self.BB = bt.indicators.BollingerBandsPct()
+        self.ADO = bt.indicators.AccelerationDecelerationOscillator()
+
+    def next(self):
+        self.log('Result, %.2f' % self.BB[0])
+
+        # Buy at lower SD and sell at middle, watchout for generally decelerating market using ADO
+        if not self.position:
+            if( self.BB.lines[2] > self.dataclose):
+                self.order = self.buy()
+        else:
+            if( self.BB.lines[0] < self.dataclose or self.ADO < -self.params.ActionStart):
+                self.order = self.sell()
+
+    def stop(self):
+        self.log('(Ratio to Act: %.2f) Ending Value: %.2f' % 
+                 (self.params.ActionStart, self.broker.getvalue()), doprint = True)
+        
+class CrossOver(bt.Strategy):
+    # Customazaiable paramteres to easy adjusting code
+    params = (
+        ('maperiod', 10),
+    )
+
+    # Prints entered data for logging purposes
+    def log(self, printTxt, date=None, doprint=False):
+        ''' Logging function for this strategy'''
+        if doprint:
+            date = date or self.datas[0].datetime.date(0)
+            print('%s, %s' % (date.isoformat(), printTxt))
+
+    # Initialize all variables that will be used thorughout the strategy
+    def __init__(self):
+        # Keep a reference to the "close" line in the data[0] dataseries
+        self.dataclose = self.datas[0].close
+        self.order = None
+
+        # Add all indicators to CrossOver Indicator
+        self.AMA = bt.indicators.AdaptiveMovingAverage(period = self.params.maperiod)
+        self.ZEMA = bt.indicators.ZeroLagExponentialMovingAverage(period = self.params.maperiod)
+        self.CO = bt.indicators.CrossOver(self.ZEMA, self.AMA)
+
+    def next(self):
+        self.log('Result, %.2f' % self.CO[0])
+
+        # Buy when accurate is rising when compared to leaning
+        if not self.position:
+            if( self.CO > 0):
+                self.order = self.buy()
+        else:
+            if( self.CO < 0):
+                self.order = self.sell()
+
+    def stop(self):
+        self.log('(Ratio to Act: %.2f) Ending Value: %.2f' % 
+                 (self.params.maperiod, self.broker.getvalue()), doprint = True)
+        
+class RSI(bt.Strategy):
+    # Customazaiable paramteres to easy adjusting code
+    params = (
+        ('maperiod', 10),
+    )
+
+    # Prints entered data for logging purposes
+    def log(self, printTxt, date=None, doprint=False):
+        ''' Logging function for this strategy'''
+        if doprint:
+            date = date or self.datas[0].datetime.date(0)
+            print('%s, %s' % (date.isoformat(), printTxt))
+
+    # Initialize all variables that will be used thorughout the strategy
+    def __init__(self):
+        # Keep a reference to the "close" line in the data[0] dataseries
+        self.dataclose = self.datas[0].close
+        self.order = None
+
+        # Add all indicators to CrossOver Indicator
+        self.EMA = bt.indicators.RSI_EMA(period = self.params.maperiod)
+        self.SMA = bt.indicators.RSI_SMA(period = self.params.maperiod)
+        self.SAFE = bt.indicators.RSI_Safe(period = self.params.maperiod)
+        
+
+    def next(self):
+        self.log('EMA, %.2f, SMA, %.2f, Safe, %.2f' % (self.EMA[0], self.SMA[0], self.SAFE[0]))
+        
+
+        # Buy at lower SD and sell at middle, watchout for generally decelerating market using ADO
+        
+        if( self.EMA < 30):
+            self.order = self.buy()
+        elif( self.EMA > 70 and self.position):
+            self.order = self.sell()
+
+    def stop(self):
+        self.log('(Ratio to Act: %.2f) Ending Value: %.2f' % 
+                 (self.params.maperiod, self.broker.getvalue()), doprint = True)
+
 class MAcrossover(bt.Strategy): 
     # Moving average parameters
     params = (('pfast',20),('pslow',50),)

@@ -1,6 +1,7 @@
 import yfinance as yf
 import yfinance.data as da
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import backtrader as bt
 import datetime
@@ -14,13 +15,38 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro()
     
     # Add a strategy
-    #cerebro.addstrategy(SimpleMovingAverage)
+    cerebro.addstrategy(RSI, maperiod = 15)
+
+    # Simple CrossOver optimization
+    """strats = cerebro.optstrategy(
+        CrossOver,
+        maperiod = range(5, 50, 1))"""
+
+    # Simple BollingerBands optimization
+    """strats = cerebro.optstrategy(
+        BollingerBandsPct,
+        ActionStart = np.arange(0, 5, 0.1))"""
+
+    # Advanced AverageTrueRange optimization
+    """strats = cerebro.optstrategy(
+        AverageTrueRange,
+        AccVolit = np.arange(6, 8, 0.04))"""
+
+    # Advanced AverageDirectionalMovementIndex optimization
+    """strats = cerebro.optstrategy(
+        AverageDirectionalMovementIndex,
+        tradeStarter = range(10, 40, 1))"""
+
+    # Basic AccelerationDecelerationOscillator optimizaion!
+    """strats = cerebro.optstrategy(
+        AccelerationDecelerationOscillator,
+        startAction = np.arange(0, 5, 0.1))"""
 
     # Optomize a strategy with ceartin range for the indicators
-    strats = cerebro.optstrategy(
+    """strats = cerebro.optstrategy(
         SimpleMovingAverage,
-        maperiod = range(5, 50)
-    )
+        maperiod = range(5, 50, 1)
+    )"""
 
     #Add data of Microsoft to Cerebro
     data = bt.feeds.YahooFinanceCSVData(dataname='MSFT.csv', 
@@ -37,7 +63,7 @@ if __name__ == '__main__':
     cerebro.addsizer(bt.sizers.FixedSize, stake=10)
 
     # Set commision
-    cerebro.broker.setcommission(commission=0.000)
+    cerebro.broker.setcommission(commission=0.001)
 
     # Run Cerebro Engine
     start_portfolio_value = cerebro.broker.getvalue()
@@ -50,4 +76,4 @@ if __name__ == '__main__':
     print(f'Final Portfolio Value: {end_portfolio_value:2f}')
     print(f'PnL: {pnl:.2f}')
 
-    #cerebro.plot()
+    cerebro.plot()
