@@ -1,3 +1,9 @@
+'''
+    Pranav Neti
+    6/8/2023
+    This is where all the algorithims were written and tested, these classes will be accessed for each test
+'''
+
 import backtrader as bt
 import datetime
 
@@ -250,11 +256,11 @@ class AccelerationDecelerationOscillator(bt.Strategy):
 
         # If there are no stocks, and current stock is falling buy, if there are stocks and curent stock is rising sell
         if not self.position:
-            if(self.ADO[0] > -(self.params.startAction)):
+            if(self.ADO[0] < -(self.params.startAction)):
                 self.log('BUY CREATE, %.2f' % self.dataclose[0])
                 self.order = self.buy()
         else:
-            if(self.ADO[0] < (self.params.startAction)):
+            if(self.ADO[0] > (self.params.startAction)):
                 self.log('SELL CREATE, %.2f' % self.dataclose[0])
                 self.order = self.sell()
 

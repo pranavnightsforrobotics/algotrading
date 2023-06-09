@@ -1,8 +1,10 @@
-import yfinance as yf
-import yfinance.data as da
-import matplotlib.pyplot as plt
+'''
+    Pranav Neti
+    6/8/2023
+    This is the simulator where I can run through historic stock data and apply my trading strategies to test their effectiveness
+'''
+
 import numpy as np
-import pandas as pd
 import backtrader as bt
 import datetime
 from strategies import *
