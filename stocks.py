@@ -17,7 +17,7 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro()
     
     # Add a strategy
-    cerebro.addstrategy(RSI, maperiod = 15)
+    #cerebro.addstrategy(RSI, maperiod = 15)
 
     # Simple CrossOver optimization
     """strats = cerebro.optstrategy(
