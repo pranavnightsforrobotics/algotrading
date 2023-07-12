@@ -49,3 +49,4 @@ The crossover indicator is similar to a strategy that I unknowingly used before,
 The RSI is classified as a momentum oscillator, measuring the velocity and magnitude of price movements. Momentum is the rate of the rise or fall in price. If the momentum of the price is rising and the recent stock is rising then buys were conducted, if the momentum of the price is falling or the recenet stock is falling then sells were conducted.
 
 ## Results
+![SMA Image](/Best%20Results/Simple%20Moving%20Average%20Results.png)
