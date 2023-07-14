@@ -49,4 +49,26 @@ The crossover indicator is similar to a strategy that I unknowingly used before,
 The RSI is classified as a momentum oscillator, measuring the velocity and magnitude of price movements. Momentum is the rate of the rise or fall in price. If the momentum of the price is rising and the recent stock is rising then buys were conducted, if the momentum of the price is falling or the recenet stock is falling then sells were conducted.
 
 ## Results
+Some quick notes, all of these were used on microsoft data for 2022-2023. For everything except the RSI I was only allowed to hold and sell one stock, since the price of the microsoft stock naturally rised and just buying would have resulted in profit. There was a 0.01% commission on every trade and every trade had a magnitude of 10 stocks.
+
+Here were the results of the SMA
 ![SMA Image](/Best%20Results/Simple%20Moving%20Average%20Results.png)
+
+Here were the results of the ADO
+![ADO Image](/Best%20Results/AccelerationDecelerationOscillator.png)
+
+Here were the results of the ADX
+![ADX Image](/Best%20Results/AverageDirectionalMovementIndex%20Results.png)
+
+Here were the results of the ATR
+![ATR Image](/Best%20Results/AverangeTrueRange%20Results.png)
+
+Here were the results of the BB
+![BB Image](/Best%20Results/BollingerBandsPct%20Results.png)
+
+Here were the results of the CO
+![CO Image](/Best%20Results/CrossOver%20Results.png)
+
+Here were the results of the RSI
+![RSI Image](/Best%20Results/RSI%20Results.png)
+
